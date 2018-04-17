@@ -19,8 +19,6 @@ var RE = {};
 
 window.onload = function() {
     RE.callback("ready");
-     _callbackPositionStyle();
-
 };
 
 RE.editor = document.getElementById('editor');
@@ -28,6 +26,7 @@ RE.editor = document.getElementById('editor');
 // Not universally supported, but seems to work in iOS 7 and 8
 document.addEventListener("selectionchange", function() {
     RE.backuprange();
+    _callbackPositionStyle();
 });
 
 //looks specifically for a Range selection and not a Caret selection
