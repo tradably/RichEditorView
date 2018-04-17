@@ -34,6 +34,9 @@ import UIKit
     /// Called when custom actions are called by callbacks in the JS
     /// By default, this method is not used unless called by some custom JS that you add
     @objc optional func richEditor(_ editor: RichEditorView, handle action: String)
+    
+    /// Called when selection changed actions are called by callbacks in the JS
+    @objc optional func richEditor(_ editor: RichEditorView, positionStyles styles: [String])
 }
 
 /// RichEditorView is a UIView that displays richly styled text, and allows it to be edited in a WYSIWYG fashion.
@@ -500,6 +503,18 @@ import UIKit
                 delegate?.richEditorDidLoad?(self)
             }
             updateHeight()
+        }
+        else if method.hasPrefix("position/") {
+            print("position changed", method)
+            
+            let actionPrefix = "position/"
+            let range = method.range(of: actionPrefix)!
+            let payloadRaw = method.replacingCharacters(in: range, with: "")
+            var payload: [String] = []
+            if payloadRaw.count > 0 {
+                payload = payloadRaw.components(separatedBy: ",")
+            }
+            delegate?.richEditor?(self, positionStyles: payload)
         }
         else if method.hasPrefix("input") {
             scrollCaretToVisible()
