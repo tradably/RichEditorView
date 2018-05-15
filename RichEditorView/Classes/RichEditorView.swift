@@ -344,6 +344,10 @@ import UIKit
     public func blur() {
         runJS("RE.blurFocus()")
     }
+    
+    public func setHighlightOptions(_ regex: String, words: [String]) {
+        runJS("RE.setHighlightOptions(\(regex), [\(words.map({"\"\($0)\""}).joined(separator: ","))]);")
+    }
 
     /// Runs some JavaScript on the UIWebView and returns the result
     /// If there is no result, returns an empty string

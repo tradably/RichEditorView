@@ -59,3 +59,7 @@ div {
     color:#666666;
     font-size: 12pt;
 }
+
+.hashtag {
+    background: rgba(19, 158, 133, 0.4);
+}
