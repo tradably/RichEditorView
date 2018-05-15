@@ -574,14 +574,18 @@ function restoreSelection(absoluteAnchorIndex, absoluteFocusIndex) {
 function renderText(text) {
     let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1')
     if (RE.highlightOption) {
-        if (RE.highlightOption.regex) {
-            let regex = new RegExp(RE.highlightOption.regex)
-            
-            let matches = text.match(regex)
-            if (matches && matches.length > 0) {
-                for (let match of matches) {
-                    tmp = tmp.replace(match, `<span class="hashtag">${match}</span>`)
+        if (RE.highlightOption.regex && RE.highlightOption.regex !== '') {
+            try {
+                let regex = new RegExp(RE.highlightOption.regex)
+                
+                let matches = text.match(regex)
+                if (matches && matches.length > 0) {
+                    for (let match of matches) {
+                        tmp = tmp.replace(match, `<span class="hashtag">${match}</span>`)
+                    }
                 }
+            } catch(err) {
+                
             }
         }
         if (RE.highlightOption.words) {
