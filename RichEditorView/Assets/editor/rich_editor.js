@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- "use strict";
+"use strict";
 
 var RE = {};
 
 window.onload = function() {
     RE.callback("ready");
+    RE.focus();
 };
 
 RE.editor = document.getElementById('editor');
 
 // Not universally supported, but seems to work in iOS 7 and 8
 document.addEventListener("selectionchange", function() {
-    RE.backuprange();
-    _callbackPositionStyle();
-});
+                          RE.backuprange();
+                          _callbackPositionStyle();
+                          });
 
 //looks specifically for a Range selection and not a Caret selection
 RE.rangeSelectionExists = function() {
@@ -93,36 +94,47 @@ var _callbackPositionStyle = function(e) {
     if (formatBlock.length > 0) {
         items.push(formatBlock);
     }
-
+    
     RE.callback('position/' + encodeURI(items.join(',')));
 };
 
 RE.editor.addEventListener("keyup", function(e) {
-    var KEY_LEFT = 37, KEY_RIGHT = 39;
-    if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
-       _callbackPositionStyle(e);
-    }
-//        RE.callback("keyup/");
-});
+                           var KEY_LEFT = 37, KEY_RIGHT = 39;
+                           if (e.which == KEY_LEFT || e.which == KEY_RIGHT) {
+                           _callbackPositionStyle(e);
+                           }
+                           //        RE.callback("keyup/");
+                           });
 
 RE.editor.addEventListener("click", function() {
-   RE.callback("click/");
-});
+                           RE.callback("click/");
+                           });
 RE.editor.addEventListener("input", function() {
-    RE.updatePlaceholder();
-    RE.backuprange();
-    RE.callback("input");
-    updateEditor();
-});
+                           RE.updatePlaceholder();
+                           RE.backuprange();
+                           const sel = window.getSelection();
+                           const nodeValue = sel.focusNode.nodeValue;
+                           // console.log('offset', sel.focusOffset)
+                           if (nodeValue) {
+                           const passData = {
+                           text: nodeValue,
+                           offset: sel.focusOffset,
+                           action: 'input'
+                           }
+                           RE.callback("action/" + JSON.stringify(passData));
+                           }
+                           RE.callback("input");
+                           updateEditor();
+                           });
 
 RE.editor.addEventListener("focus", function() {
-    RE.backuprange();
-    RE.callback("focus");
-});
+                           RE.backuprange();
+                           RE.callback("focus");
+                           });
 
 RE.editor.addEventListener("blur", function() {
-    RE.callback("blur");
-});
+                           RE.callback("blur");
+                           });
 
 RE.customAction = function(action) {
     RE.callback("action/" + action);
@@ -137,10 +149,10 @@ RE.runCallbackQueue = function() {
     if (RE.callbackQueue.length === 0) {
         return;
     }
-
+    
     setTimeout(function() {
-        window.location.href = "re-callback://";
-    }, 0);
+               window.location.href = "re-callback://";
+               }, 0);
 };
 
 RE.getCommandQueue = function() {
@@ -158,11 +170,11 @@ RE.setHtml = function(contents) {
     var tempWrapper = document.createElement('div');
     tempWrapper.innerHTML = contents;
     var images = tempWrapper.querySelectorAll("img");
-
+    
     for (var i = 0; i < images.length; i++) {
         images[i].onload = RE.updateHeight;
     }
-
+    
     RE.editor.innerHTML = tempWrapper.innerHTML;
     RE.updatePlaceholder();
     updateEditor();
@@ -299,7 +311,7 @@ RE.insertImage = function(url, alt) {
     img.setAttribute("src", url);
     img.setAttribute("alt", alt);
     img.onload = RE.updateHeight;
-
+    
     RE.insertHTML(img.outerHTML);
     RE.callback("input");
 };
@@ -313,16 +325,31 @@ RE.insertHTML = function(html) {
     document.execCommand('insertHTML', false, html);
 };
 
+RE.insertMention = function(baseText, mentionText) {
+    const sel = window.getSelection();
+    if (sel.focusNode !== RE.editor && baseText && mentionText) {
+        const focusOffset = sel.focusOffset;
+        const newFocusOffset = focusOffset + mentionText.length - baseText.length;
+        
+        sel.focusNode.nodeValue = sel.focusNode.nodeValue.substring(0, focusOffset - baseText.length)
+        + mentionText
+        + sel.focusNode.nodeValue.substring(newFocusOffset, sel.focusNode.nodeValue.length);
+        sel.setBaseAndExtent(sel.anchorNode, newFocusOffset, sel.focusNode, newFocusOffset);
+    } else {
+        console.log('sel', sel);
+    }
+};
+
 RE.insertLink = function(url, title) {
     RE.restorerange();
     var sel = document.getSelection();
     if (sel.toString().length !== 0) {
         if (sel.rangeCount) {
-
+            
             var el = document.createElement("a");
             el.setAttribute("href", url);
             el.setAttribute("title", title);
-
+            
             var range = sel.getRangeAt(0).cloneRange();
             range.surroundContents(el);
             sel.removeAllRanges();
@@ -398,15 +425,19 @@ RE.blurFocus = function() {
 
 RE.setHighlightOptions = function(regex, words) {
     RE.highlightOption = {
-        regex: regex,
-        words: words
+    regex: regex,
+    words: words
     }
     updateEditor();
 };
 
+RE.insertText = function(text) {
+    
+}
+
 /**
-Recursively search element ancestors to find a element nodeName e.g. A
-**/
+ Recursively search element ancestors to find a element nodeName e.g. A
+ **/
 var _findNodeByNameInContainer = function(element, nodeName, rootElementId) {
     if (element.nodeName == nodeName) {
         return element;
@@ -424,7 +455,7 @@ var isAnchorNode = function(node) {
 
 RE.getAnchorTagsInNode = function(node) {
     var links = [];
-
+    
     while (node.nextSibling !== null && node.nextSibling !== undefined) {
         node = node.nextSibling;
         if (isAnchorNode(node)) {
@@ -449,7 +480,7 @@ RE.getSelectedHref = function() {
     if (!RE.rangeOrCaretSelectionExists()) {
         return null;
     }
-
+    
     var tags = RE.getAnchorTagsInNode(sel.anchorNode);
     //if more than one link is there, return null
     if (tags.length > 1) {
@@ -460,7 +491,7 @@ RE.getSelectedHref = function() {
         var node = _findNodeByNameInContainer(sel.anchorNode.parentElement, 'A', 'editor');
         href = node.href;
     }
-
+    
     return href ? href : null;
 };
 
@@ -485,7 +516,7 @@ RE.getRelativeCaretYPosition = function() {
             }
         }
     }
-
+    
     return y;
 };
 
@@ -494,27 +525,27 @@ RE.getRelativeCaretYPosition = function() {
 function getTextSegments(element) {
     const textSegments = [];
     Array.from(element.childNodes).forEach((node) => {
-        switch(node.nodeType) {
-            case Node.TEXT_NODE:
-                let nodeValue = node.nodeValue
-                textSegments.push({text: nodeValue, node});
-                break;
-
-            case Node.ELEMENT_NODE:
-                if (node.tagName === 'BR') {
-                    textSegments.push({
-                        text: "\n",
-                        node: node
-                    })
-                } else {
-                    textSegments.splice(textSegments.length, 0, ...(getTextSegments(node)));
-                }
-                break;
-            default:
-                break;
-                // throw new Error(`Unexpected node type: ${node.nodeType}`);
-        }
-    });
+                                           switch(node.nodeType) {
+                                           case Node.TEXT_NODE:
+                                           let nodeValue = node.nodeValue
+                                           textSegments.push({text: nodeValue, node});
+                                           break;
+                                           
+                                           case Node.ELEMENT_NODE:
+                                           if (node.tagName === 'BR') {
+                                           textSegments.push({
+                                                             text: "\n",
+                                                             node: node
+                                                             })
+                                           } else {
+                                           textSegments.splice(textSegments.length, 0, ...(getTextSegments(node)));
+                                           }
+                                           break;
+                                           default:
+                                           break;
+                                           // throw new Error(`Unexpected node type: ${node.nodeType}`);
+                                           }
+                                           });
     return textSegments;
 }
 
@@ -524,26 +555,28 @@ function updateEditor() {
     }
     const editor = RE.editor
     const sel = window.getSelection();
+    if (editor === sel.anchorNode) {
+        return;
+    }
     const textSegments = getTextSegments(editor);
-
+    
     let anchorIndex = null;
     let focusIndex = null;
     let currentIndex = 0;
     textSegments.forEach(({text, node}) => {
-        if (node === sel.anchorNode) {
-            anchorIndex = currentIndex + sel.anchorOffset;
-        }
-        if (node === sel.focusNode) {
-            focusIndex = currentIndex + sel.focusOffset;
-        }
-
-        currentIndex += text.length;
-    });
-    editor.innerHTML = renderText(editor.innerHTML);
+                         if (node === sel.anchorNode) {
+                         anchorIndex = currentIndex + sel.anchorOffset;
+                         }
+                         if (node === sel.focusNode) {
+                         focusIndex = currentIndex + sel.focusOffset;
+                         }
+                         
+                         currentIndex += text.length;
+                         });
+    
     if (anchorIndex !== null && focusIndex !== null)  {
+        editor.innerHTML = renderText(editor.innerHTML);
         restoreSelection(anchorIndex, focusIndex);
-    } else {
-        RE.focus()
     }
 }
 
@@ -557,22 +590,26 @@ function restoreSelection(absoluteAnchorIndex, absoluteFocusIndex) {
     let focusIndex = 0;
     let currentIndex = 0;
     textSegments.forEach(({text, node}) => {
-        const startIndexOfNode = currentIndex;
-        const endIndexOfNode = startIndexOfNode + text.length;
-        if (startIndexOfNode <= absoluteAnchorIndex && absoluteAnchorIndex <= endIndexOfNode) {
-            anchorNode = node;
-            anchorIndex = absoluteAnchorIndex - startIndexOfNode;
-        }
-        if (startIndexOfNode <= absoluteFocusIndex && absoluteFocusIndex <= endIndexOfNode) {
-            focusNode = node;
-            focusIndex = absoluteFocusIndex - startIndexOfNode;
-        }
-        currentIndex += text.length;
-    });
-
+                         const startIndexOfNode = currentIndex;
+                         const endIndexOfNode = startIndexOfNode + text.length;
+                         if (startIndexOfNode < absoluteAnchorIndex && absoluteAnchorIndex <= endIndexOfNode) {
+                         anchorNode = node;
+                         anchorIndex = absoluteAnchorIndex - startIndexOfNode;
+                         }
+                         if (startIndexOfNode < absoluteFocusIndex && absoluteFocusIndex <= endIndexOfNode) {
+                         focusNode = node;
+                         focusIndex = absoluteFocusIndex - startIndexOfNode;
+                         }
+                         currentIndex += text.length;
+                         });
+    
     sel.setBaseAndExtent(anchorNode, anchorIndex, focusNode, focusIndex);
 }
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.split(search).join(replacement);
+};
 
 function renderText(text) {
     let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1')
@@ -580,7 +617,7 @@ function renderText(text) {
         if (RE.highlightOption.regex && RE.highlightOption.regex !== '') {
             try {
                 let regex = new RegExp(RE.highlightOption.regex)
-
+                
                 let matches = text.match(regex)
                 if (matches && matches.length > 0) {
                     for (let match of matches) {
@@ -588,13 +625,14 @@ function renderText(text) {
                     }
                 }
             } catch(err) {
-
+                
             }
         }
         if (RE.highlightOption.words) {
             for (let word of RE.highlightOption.words) {
-                tmp = tmp.replace(new RegExp(word, 'g'), `<span class="hashtag">${word}</span>`);
+                tmp = tmp.replaceAll(word, `<span class="hashtag">${word}</span>`);
             }
+            tmp = tmp.replace(/<span class="hashtag"><span class="hashtag">(.*?)<\/span>(.*?)<\/span>/g, '<span class="hashtag">$1$2</span>')
         }
     }
     return tmp

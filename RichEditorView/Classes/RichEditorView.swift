@@ -333,6 +333,14 @@ import UIKit
         runJS("RE.insertLink('\(href.escaped)', '\(title.escaped)');")
     }
     
+    public func insertHtml(_ html: String) {
+        runJS("RE.insertHTML('\(html.escaped)');")
+    }
+    
+    public func insertMention(_ baseText: String, mentionText: String) {
+        runJS("RE.insertMention('\(baseText.escaped)', '\(mentionText.escaped)');")
+    }
+    
     public func focus() {
         runJS("RE.focus();")
     }
@@ -509,8 +517,6 @@ import UIKit
             updateHeight()
         }
         else if method.hasPrefix("position/") {
-            print("position changed", method)
-            
             let actionPrefix = "position/"
             let range = method.range(of: actionPrefix)!
             let payloadRaw = method.replacingCharacters(in: range, with: "")

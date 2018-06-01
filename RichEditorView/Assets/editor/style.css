@@ -58,6 +58,7 @@ div {
     font-family: 'HelveticaNeue';
     color:#666666;
     font-size: 12pt;
+    line-height: normal !important;
 }
 
 .hashtag {
