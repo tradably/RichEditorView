@@ -612,7 +612,7 @@ String.prototype.replaceAll = function(search, replacement) {
 };
 
 function renderText(text) {
-    let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gi, '$1')
+    let tmp = text.replace(/<span class="hashtag">(.*?)<\/span>/gmi, '$1')
     if (RE.highlightOption) {
         if (RE.highlightOption.regex && RE.highlightOption.regex !== '') {
             try {
@@ -632,7 +632,7 @@ function renderText(text) {
             for (let word of RE.highlightOption.words) {
                 tmp = tmp.replaceAll(word, `<span class="hashtag">${word}</span>`);
             }
-            tmp = tmp.replace(/<span class="hashtag"><span class="hashtag">(.*?)<\/span>(.*?)<\/span>/g, '<span class="hashtag">$1$2</span>')
+            tmp = tmp.replace(/<span class="hashtag"><span class="hashtag">(.*?)<\/span>(.*?)<\/span>/gm, '<span class="hashtag">$1$2</span>')
         }
     }
     return tmp
