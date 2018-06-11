@@ -522,6 +522,12 @@ RE.getRelativeCaretYPosition = function() {
     return y;
 };
 
+RE.setEditorAttribute = function(attribute, value) {
+    if (attribute) {
+        RE.editor[attribute] = value;
+    }
+}
+
 // Helper functions
 
 function getTextSegments(element) {
