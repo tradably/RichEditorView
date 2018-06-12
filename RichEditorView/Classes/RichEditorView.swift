@@ -358,7 +358,7 @@ import UIKit
     }
     
     public func setEditorAttribute(_ attribute: String, value: String) {
-        runJS("RE.setEditorAttribute(\(attribute), \(value));")
+        runJS("RE.setEditorAttribute('\(attribute)', '\(value)');")
     }
 
     /// Runs some JavaScript on the UIWebView and returns the result
