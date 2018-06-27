@@ -333,7 +333,7 @@ RE.insertMention = function(baseText, mentionText) {
 
         sel.focusNode.nodeValue = sel.focusNode.nodeValue.substring(0, focusOffset - baseText.length)
         + mentionText
-        + sel.focusNode.nodeValue.substring(newFocusOffset, sel.focusNode.nodeValue.length);
+        + sel.focusNode.nodeValue.substring(focusOffset);
         sel.setBaseAndExtent(sel.anchorNode, newFocusOffset, sel.focusNode, newFocusOffset);
     } else {
         console.log('sel', sel);
