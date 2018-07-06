@@ -335,6 +335,7 @@ RE.insertMention = function(baseText, mentionText) {
         + mentionText
         + sel.focusNode.nodeValue.substring(focusOffset);
         sel.setBaseAndExtent(sel.anchorNode, newFocusOffset, sel.focusNode, newFocusOffset);
+        RE.callback("input");
     } else {
         console.log('sel', sel);
     }
