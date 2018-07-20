@@ -110,7 +110,7 @@ RE.editor.addEventListener("click", function() {
     RE.callback("click/");
 });
 
-var debouncedUpdateEditor = _.debounce(updateEditor, 100);
+var debouncedUpdateEditor = _.debounce(updateEditor, 150);
 
 RE.editor.addEventListener("input", function() {
     RE.updatePlaceholder();
