@@ -109,6 +109,9 @@ RE.editor.addEventListener("keyup", function(e) {
 RE.editor.addEventListener("click", function() {
     RE.callback("click/");
 });
+
+var debouncedUpdateEditor = _.debounce(updateEditor, 100);
+
 RE.editor.addEventListener("input", function() {
     RE.updatePlaceholder();
     RE.backuprange();
@@ -124,7 +127,7 @@ RE.editor.addEventListener("input", function() {
         RE.callback("action/" + JSON.stringify(passData));
     }
     RE.callback("input");
-    updateEditor();
+    debouncedUpdateEditor();
 });
 
 RE.editor.addEventListener("focus", function() {
